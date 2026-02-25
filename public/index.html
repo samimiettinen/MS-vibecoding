@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inventory Manager</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="app">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-inner">
+          <div class="header-brand">
+            <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="3" width="20" height="14" rx="2"/>
+              <path d="M8 21h8M12 17v4"/>
+              <path d="M7 8h10M7 12h6"/>
+            </svg>
+            <span>Inventory Manager</span>
+          </div>
+          <button class="btn btn-primary" id="openAddModal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
+            Add Product
+          </button>
+        </div>
+      </header>
+
+      <!-- Main Content -->
+      <main class="main">
+        <!-- Stats Bar -->
+        <div class="stats-bar" id="statsBar">
+          <div class="stat-card">
+            <div class="stat-value" id="statTotal">—</div>
+            <div class="stat-label">Total Products</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statCategories">—</div>
+            <div class="stat-label">Categories</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statLowStock">—</div>
+            <div class="stat-label">Low Stock (&lt;20)</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statValue">—</div>
+            <div class="stat-label">Total Value</div>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-bar">
+          <div class="search-wrap">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input
+              type="text"
+              id="searchInput"
+              class="search-input"
+              placeholder="Search products or SKU…"
+            />
+          </div>
+          <div class="category-filters" id="categoryFilters">
+            <button class="filter-chip active" data-category="All">All</button>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-container">
+          <table class="products-table" id="productsTable">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>SKU</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="productsBody">
+              <tr><td colspan="7" class="loading-row">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="empty-state" id="emptyState" style="display:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48">
+            <path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2Z"/>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+          </svg>
+          <p>No products found</p>
+          <span>Try adjusting your search or filter</span>
+        </div>
+      </main>
+
+      <!-- Add Product Modal -->
+      <div class="modal-overlay" id="addModal">
+        <div class="modal">
+          <div class="modal-header">
+            <h2>Add New Product</h2>
+            <button class="modal-close" id="closeAddModal">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20">
+                <path d="M18 6 6 18M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+          <form class="modal-form" id="addProductForm" novalidate>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="newName">Product Name *</label>
+                <input type="text" id="newName" placeholder="e.g. Wireless Headphones" required />
+              </div>
+              <div class="form-group">
+                <label for="newSku">SKU *</label>
+                <input type="text" id="newSku" placeholder="e.g. ELEC-006" required />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="newCategory">Category *</label>
+                <input type="text" id="newCategory" placeholder="e.g. Electronics" list="categoryList" required />
+                <datalist id="categoryList"></datalist>
+              </div>
+              <div class="form-group">
+                <label for="newPrice">Price ($) *</label>
+                <input type="number" id="newPrice" placeholder="0.00" step="0.01" min="0" required />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="newQuantity">Initial Quantity *</label>
+                <input type="number" id="newQuantity" placeholder="0" min="0" step="1" required />
+              </div>
+            </div>
+            <div class="form-error" id="addFormError"></div>
+            <div class="modal-actions">
+              <button type="button" class="btn btn-secondary" id="cancelAddModal">Cancel</button>
+              <button type="submit" class="btn btn-primary">Add Product</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Edit Quantity Modal -->
+      <div class="modal-overlay" id="editModal">
+        <div class="modal modal-sm">
+          <div class="modal-header">
+            <h2>Update Quantity</h2>
+            <button class="modal-close" id="closeEditModal">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20">
+                <path d="M18 6 6 18M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+          <div class="modal-product-name" id="editProductName"></div>
+          <form class="modal-form" id="editQuantityForm" novalidate>
+            <div class="form-group">
+              <label for="editQuantity">New Quantity *</label>
+              <input type="number" id="editQuantity" min="0" step="1" required />
+            </div>
+            <div class="form-error" id="editFormError"></div>
+            <div class="modal-actions">
+              <button type="button" class="btn btn-secondary" id="cancelEditModal">Cancel</button>
+              <button type="submit" class="btn btn-primary">Update</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Delete Confirmation Modal -->
+      <div class="modal-overlay" id="deleteModal">
+        <div class="modal modal-sm">
+          <div class="modal-header">
+            <h2>Delete Product</h2>
+            <button class="modal-close" id="closeDeleteModal">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20">
+                <path d="M18 6 6 18M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+          <p class="delete-confirm-text">
+            Are you sure you want to delete <strong id="deleteProductName"></strong>?
+            This action cannot be undone.
+          </p>
+          <div class="modal-actions">
+            <button class="btn btn-secondary" id="cancelDeleteModal">Cancel</button>
+            <button class="btn btn-danger" id="confirmDelete">Delete</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast Notification -->
+      <div class="toast" id="toast"></div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
