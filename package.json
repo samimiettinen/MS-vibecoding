@@ -1,7 +1,7 @@
 {
   "name": "ms-vibecoding-inventory",
   "version": "1.0.0",
-  "description": "Retail store inventory management web app",
+  "description": "Inventory management web app for Mac Minis and OpenClaw deployment bundles",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
